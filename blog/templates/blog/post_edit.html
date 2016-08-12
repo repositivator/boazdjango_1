@@ -1,0 +1,36 @@
+{% extends "blog/base.html" %}
+
+
+{% block title %}
+Venus&Goddess
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="jumbotron" style="background-image: url('/static/blog/images/bgimage.jpg'); background-position: right;}">
+  <div class="container">
+    <h1 style="color: white; font-size: 70px;">촬영 정보 수정하기<h1>
+    <p style="color: #fffccc; font-family: 'Hanna', serif; font-size: 24px;">촬영과 관련된 정보를 최신으로 유지해주세요!<br>
+    오류 발생 시 문의주세요 @ 010-1234-5678 </p>
+  </div>
+</div>
+
+<div class = "container" style="width: 40%;">
+    <h1 style = "color:gray;">자세히 적어주실수록 좋아요!</h1>
+    <hr style="border-top: black;">
+    <form style = "margin-bottom: 20px;" action="{% url 'edit' pk=post.pk %}" method="POST"> <!-- index.html 의 수정하기 버트과 달리 POST 임을 알 수 있다 -->
+    {% csrf_token %}
+        <input style="margin-bottom: 2px;" class="form-control" value="{{post.title}}" type ="text" id="title" name="title">
+        <textarea class="form-control" id="content" rows=5 name="content">{{post.text}}</textarea>
+        <hr style="border-top: black;">
+        <p align="center">
+            <button type="submit" class="btn btn-warning" style="margin-top: 5px;background-color: black;">
+                <span class="glyphicon glyphicon-ok" style="font-size: 3em;"></span>
+            </button>
+        </p>
+    </form>
+</div>
+
+{% endblock %}

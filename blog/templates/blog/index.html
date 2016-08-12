@@ -1,0 +1,203 @@
+
+{% extends "blog/base.html" %}
+
+
+{% block title %}
+Venus&Goddess
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="jumbotron" style="background-image: url('/static/blog/images/bgimage.jpg'); background-position: right;}">
+  <div class="container">
+    <h1 style="color: white; font-size: 70px;">Venus & Goddess<h1>
+    <p style="color: #fffccc; font-family: 'Hanna', serif; font-size: 24px;">당신의 가장 아름다운 순간을 영원히 간직하고 싶으신가요?<br>
+    비너스앤가디스가 여러분의 오늘을 가장 아름답게 담아드립니다.</p>
+  </div>
+</div>
+
+
+<div class = "container" style="width:60%;">
+    <form style = "margin-bottom: 20px;" action="{% url 'write' %}" method="POST" name="myForm">
+    {% csrf_token %}
+      <div class ="row">
+        <div class="col-md-10">
+          <!-- input tag의 name 이 가장 중요 --> 
+          <!-- 파일 업로드 기능 : [ 파이썬+장고 수업자료 폴더 -> 07주_2_주말_배포_모델.pdf -> 25~30p see ] -->
+          <input class="form-control" type ="text" id="title" name="title" placeholder="어떤 컨셉 촬영이 가능하신가요?"  style="margin-bottom: 2px; background-color: black; color: white;" required >
+          <textarea class="form-control" id="content" rows=5  name="text" placeholder="촬영 스타일을 자세히 소개해주세요!" style="background-color: black; color: white;" required ></textarea>
+        </div>
+      
+        <div class="col-md-2">
+          <button class="btn btn-warning btn-register" type="submit" style="margin-top: 5px;background-color: black; padding: 14px; margin-left: -25px; margin-top: auto;">
+            <span class="glyphicon glyphicon-ok" style="font-size: 8em;"></span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<div class = "container">
+    {% for post in posts %}
+    <div class = "well" style="font-family:'Hanna', serif; padding-bottom: 0px; border: 1px solid #f7f4d9; border-radius: 12px;">
+        <div class = "row">
+          
+          <div class="col-md-4" style="overflow:hidden;">
+            
+            <p style="color:gray; opacity: 0.5; margin-bottom:0px;">
+              <strong>{{post.author}}</strong> {{post.created_date.year}}.{{post.created_date.month}}.{{post.created_date.day}}
+            </p>
+            
+            <h1 class = "post_title" style="float:left;">{{post.title}}</h1>
+            <p>
+              <!-- 수정 기능을 구현 with "post.pk" & GET 방식 요청 -->
+              <a class="btn btn-default" href="{% url 'edit' pk=post.pk %}" role="button" 
+              style="border-color:whitesmoke; background-color:whitesmoke; padding: 4px 5px 0px 5px; font-size:0.7em; margin-top:35px; margin-left:2%;">
+                <span class="glyphicon glyphicon-pencil well-glyp"></span>
+              </a>
+              
+              <!-- 삭제 기능을 구현 with "post.pk" & GET 방식 요청 -->
+              <a class="btn btn-default" href="{% url 'delete' pk=post.pk %}" role="button" 
+              style="border-color:whitesmoke; background-color:whitesmoke; padding: 4px 5px 0px 5px; font-size:0.7em; margin-top:35px;">
+                <span class="glyphicon glyphicon-trash well-glyp"></span>
+              </a>
+            </p>
+            
+            
+            <p style="padding:0px; clear:both;">{{post.text}}</p>
+            
+          </div>
+          
+          
+          <div class="col-md-8" style="overflow:hidden;">
+            
+            <!-- 파일 업로드 기능 : [ 파이썬+장고 수업자료 폴더 -> 07주_2_주말_배포_모델.pdf -> 25~30p see ] -->
+            
+            <!-- Trigger the Modal -->
+            <a href="#" class="thumbnail" style="max-width: 32%; float:left; margin-right: 1%;">
+              <img id="myImg" class="myImg" src="/static/blog/images/main_thum_1.jpg" alt="<span style='font-size:2em'>{{post.title}}</span> <br> {{post.text}}">
+            </a>
+            <a href="#" class="thumbnail" style="max-width: 32%; float:left; margin-right: 1%;">
+              <img id="myImg" class="myImg" src="/static/blog/images/main_thum_2.jpg" alt="<span style='font-size:2em'>{{post.title}}</span> <br> {{post.text}}">
+            </a>
+            <a href="#" class="thumbnail" style="max-width: 32%; float:left; margin-right: 1%;">
+              <img id="myImg" class="myImg" src="/static/blog/images/main_thum_3.jpg" alt="<span style='font-size:2em'>{{post.title}}</span> <br> {{post.text}}">
+            </a>
+                      
+            <!-- The Modal -->
+            <div id="myModal" class="modal">
+              <!-- The Close Button -->
+              <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+              <!-- Modal Content (The Image) -->
+              <img class="modal-content" id="img01">
+              <!-- Modal Caption (Image Text) -->
+              <div id="caption"></div>
+            </div>
+            
+            
+            <!--[댓글] 기존 방식(Ajax 이전) 
+            
+            댓글을 보여주기 위한 부분
+            <div class= "reply">
+                {% for comment in post.comments.all %} 
+                [ post.comments.all ] : models.py 의 Comment 클래스에서 지정된 [ related_name='comments' ] 로 접근이 가능해진 것
+                    <p>
+                      <strong>{{comment.author}}</strong>
+                      {{ comment.text }}
+                      {% if current_user == comment.author %} index 함수의 [user = request.user] 를 통해 넘겨받은 로그인한 사람과 현재 댓글 적은 사람이 같을 때
+                        
+                        <a class="btn btn-default" href="{% url 'reply_delete' pk=comment.pk %}" role="button" 
+                        style="border-color:whitesmoke; background-color:whitesmoke; padding: 4px 5px 0px 5px; font-size:0.7em; float: right;">
+                          <span class="glyphicon glyphicon-trash well-glyp"></span>
+                        </a>
+                      {% endif %}
+                    </p>
+                {% endfor %} 
+            </div>
+            
+            댓글을 등록하기 위한 부분 
+            <form action="{% url 'reply_write' %}" method="POST">
+              {% csrf_token %}
+              
+              input tag의 name이 가장 중요 : view 와 teamplate 가 소통할 때 dictionary 를 주고 받는데, 이 때 dictionary 의 key 역할을 한다.
+              <input type = "text" name="content" class="form-control" id="content"  placeholder= "질문을 적어주세요!" required>
+              <input type = "hidden" name="id_of_post" value="{{post.pk}}"> 댓글이 속해져 있는 post 의 primary key 인 post.pk 를 가져온다 
+              
+              <button type="submit" class="btn btn-default">질문하기</button>
+            </form>
+            -->
+            
+            
+            <!-- 댓글을 보여주기 위한 부분 --> 
+            <div class= "reply_{{post.pk}}" style="clear:both;">  <!-- <div class= "reply"> 에서 바뀌었음 for Ajax 가 class를 잡아내기 위해 -->
+              {% for comment in post.comments.all %} 
+              <!-- [ post.comments.all ] : models.py 의 Comment 클래스에서 지정된 [ related_name='comments' ] 로 접근이 가능해진 것 -->
+                <p style="margin: 0;">
+                  <strong>{{comment.author}}</strong>
+                  {{comment.text}}
+                  {% if request.user == comment.author %} <!-- index 함수의 [user = request.user] 를 통해 넘겨받은 로그인한 사람과 현재 댓글 적은 사람이 같을 때 -->
+                    <a href="{% url 'reply_delete' pk=comment.pk %}" role="button" style="margin-right:0.5%">
+                      <button class="btn btn-default" style="margin-left: 0.5%; color: #c5c5c5; background-color: transparent; border-color: transparent; ">
+                      <span class="glyphicon glyphicon-trash" style="font-size: 1em;"></span>
+                      </button>
+                    </a>
+                  {% endif %}
+                </p>
+              {% endfor %} 
+            </div>
+            
+            <!-- 댓글을 등록하기 위한 부분 --> 
+            <div style="margin-bottom: 2%; margin-top: 2.5%; clear:both;">
+              <!-- input tag의 name이 가장 중요 : view 와 teamplate 가 소통할 때 dictionary 를 주고 받는데, 이 때 dictionary 의 key 역할을 한다. --> 
+              <input type = "text" name="content" class="form-control" id="content_{{post.pk}}"  placeholder= "질문을 적어주세요!" style="width: 93.5%; float:left;" required>
+              <button value = "{{post.pk}}" type="submit" class="btn btn-default reply_submit" style="margin-left: 0.5%">
+                <span class="glyphicon glyphicon-ok" style="font-size: 1em;"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+  <hr>
+
+  <footer>
+    <p align="center" style="color: gray;">&copy; Venus&Goddess 2016</p>
+  </footer>
+</div> <!-- /container -->
+
+            
+
+<script>
+$(function(){ // 인터넷 페이지가 로딩되면 이 js를 쓰겠다.
+
+  $('.reply_submit').click(function(){
+    
+    post_id = this.value;
+    post_content = $("#content_" + post_id).val(); // .val() -> value 를 받아오는 것 
+    
+    $.ajax({
+      method: "POST",
+      url: "{% url 'reply_write' %}", // action 대신 url 을 쓴다 
+      data: {
+        content: post_content, 
+        id_of_post: post_id, 
+        csrfmiddlewaretoken: '{{csrf_token}}', // AJAX로 CSRF 토큰 넘겨주려면 이렇게 해주면 됩니다요.
+      },  // dictionary 형태의 data(context 와 유사)
+      
+      // 성공하면 바로 실행하도록 해주는 success 
+      success: function(){
+        $( ".reply_" + post_id ).append( "<p><strong>" + " {{request.user}}" + "</strong>" + "&nbsp;" + post_content + "</p>" );
+        $("#content_" + post_id).val(''); // 댓글 입력란을 비워준다.
+      }
+    });
+  });
+});
+</script>
+
+
+{% endblock %}
